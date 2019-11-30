@@ -3,9 +3,13 @@
 
 ### ICloud backups ###
 *.icloud
+*.tmp
 
 ### VS Code files ###
 /.vscode
+
+### Advent of Code files ###
+*.aoc
 
 ### C++ ###
 # Prerequisites
