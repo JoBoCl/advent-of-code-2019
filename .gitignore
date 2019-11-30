@@ -1,6 +1,12 @@
 # Created by https://www.gitignore.io/api/go,c++
 # Edit at https://www.gitignore.io/?templates=go,c++
 
+### ICloud backups ###
+*.icloud
+
+### VS Code files ###
+/.vscode
+
 ### C++ ###
 # Prerequisites
 *.d
