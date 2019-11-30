@@ -1,3 +1,5 @@
+#ifndef _COMMON_RECT
+#define _COMMON_RECT
 #include <algorithm>
 #include <cassert>
 #include <queue>
@@ -92,3 +94,4 @@ class Rect {
     return insert;
   }
 };
+#endif

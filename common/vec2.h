@@ -1,3 +1,5 @@
+#ifndef _COMMON_VEC2
+#define _COMMON_VEC2
 #include <string>
 #include <utility>
 
@@ -70,3 +72,4 @@ struct std::hash<Vector2<T>> {
     return (v.x * 19) ^ (v.y * 37);
   }
 };
+#endif
