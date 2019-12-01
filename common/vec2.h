@@ -3,12 +3,14 @@
 #include <string>
 #include <utility>
 
-template <typename T> class Vector2 {
+template <typename T>
+class Vector2 {
  private:
-  T x;
-  T y;
+  T x = 0;
+  T y = 0;
 
  public:
+  Vector2() {}
   Vector2(T _x, T _y) {
     x = _x;
     y = _y;
@@ -24,7 +26,7 @@ template <typename T> class Vector2 {
   bool operator!=(const Vector2<T>& other) const { return !(*this == other); }
 
   bool operator<(const Vector2<T>& other) const {
-    return x == other.x ? y < other.y : x < other .x;
+    return x == other.x ? y < other.y : x < other.x;
   }
 
   bool operator<=(const Vector2<T>& other) const {

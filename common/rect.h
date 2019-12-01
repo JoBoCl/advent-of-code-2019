@@ -11,7 +11,11 @@
 template <class T>
 class Rect {
  private:
-  T _v, _w, _x, _y;
+  T _v = 0;
+  T _w = 0;
+  T _x = 0;
+  T _y = 0;
+
   std::vector<Rect<T> > intersectionList;
   std::vector<Rect<T> > unionList;
 
@@ -54,6 +58,7 @@ class Rect {
  public:
   /** Defines a recotangle based on a pair of points at the top-left and
    * bottom-right. */
+  Rect() {}
   Rect(T v, T w, T x, T y) { assign_rect(v, w, x, y); }
   Rect(Vector2<T> l, Vector2<T> r) {
     assign_rect(l.getX(), l.getY(), r.getX(), r.getY());
