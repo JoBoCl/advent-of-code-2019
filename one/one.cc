@@ -21,14 +21,12 @@ int partOne(std::vector<int> weights) {
 
 int partTwo(std::vector<int> weights) {
   std::transform(weights.begin(), weights.end(), weights.begin(),
-                 [](int v) { return CalculateTotalFuel(v); });
+                 CalculateTotalFuel);
   return std::accumulate(weights.begin(), weights.end(), 0);
 }
 
 int main(int argc, char* argv[]) {
-  std::vector<std::string> args(&argv[0], &argv[0 + argc]);
-  std::string filename = args.size() == 1 ? "one.aoc" : args[1]; 
-  Parser p(filename);
+  Parser p(argc == 1 ? "one.oac" : argv[1]);
 
   std::vector<int> weights =
       p.parseLines<int>([](std::string s) { return std::stoi(s); });
