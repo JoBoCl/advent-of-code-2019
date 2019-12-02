@@ -2,6 +2,7 @@
 #define _COMMON_PARSER
 #include <fstream>
 #include <functional>
+#include <iterator>
 #include <map>
 #include <optional>
 #include <string>
@@ -13,6 +14,25 @@ class Parser {
 
  public:
   Parser(std::string file) { fileName = file; }
+
+  std::vector<int> parseInts() { return parseInts(','); }
+
+  std::vector<int> parseInts(char separator) {
+    std::vector<int> v;
+
+    std::ifstream file(fileName);
+
+    if (!file.is_open()) {
+      return v;
+    }
+
+    std::string value;
+    while (std::getline(file, value, separator)) {
+      v.push_back(std::stoi(value));
+    }
+
+    return v;
+  }
 
   template <typename V>
   std::optional<V> parseOnce(
