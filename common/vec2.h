@@ -1,13 +1,16 @@
 #ifndef _COMMON_VEC2
 #define _COMMON_VEC2
+#include <cmath>
 #include <string>
 #include <utility>
+#include <cstddef>
 
-template <typename T>
+template <typename T, typename V = std::nullptr_t>
 class Vector2 {
  private:
   T x = 0;
   T y = 0;
+  V v;
 
  public:
   Vector2() {}
@@ -15,15 +18,24 @@ class Vector2 {
     x = _x;
     y = _y;
   }
+  Vector2(T _x, T _y, V _v) {
+    x = _x;
+    y = _y;
+    v = _v;
+  }
+
 
   T getX() const { return x; }
   T getY() const { return y; }
+  V getV() const { return v; }
 
-  bool operator==(const Vector2<T>& other) const {
+  T distance() const { return std::abs(x) + std::abs(y); }
+
+  bool operator==(const Vector2<T, V>& other) const {
     return x == other.x && y == other.y;
   }
 
-  bool operator!=(const Vector2<T>& other) const { return !(*this == other); }
+  bool operator!=(const Vector2<T, V>& other) const { return !(*this == other); }
 
   bool operator<(const Vector2<T>& other) const {
     return x == other.x ? y < other.y : x < other.x;
