@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
                         << "\n";
               partOne = true;
             }
-            min = std::min(min, std::min(it0->getV(), it1->getV()));
+            min = std::min(min, fs->getV() + ss->getV());
           }
           ss++;
         }
