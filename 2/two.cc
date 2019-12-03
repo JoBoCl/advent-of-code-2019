@@ -5,12 +5,12 @@
 #include <vector>
 #include "../common/parser.h"
 
-std::optional<std::vector<int> > step(std::vector<int>& instructions,
+bool step(std::vector<int>& instructions,
                                       int position) {
-  if (instructions.size() < position) return {};
+  if (instructions.size() < position) return false;
   int operation = instructions[position];
 
-  if (operation != 1 && operation != 2) return {};
+  if (operation != 1 && operation != 2) return false;
 
   int first = instructions[position + 1];
   int second = instructions[position + 2];
@@ -22,7 +22,7 @@ std::optional<std::vector<int> > step(std::vector<int>& instructions,
     instructions[output] = instructions[first] * instructions[second];
   }
 
-  return instructions;
+  return true;
 }
 
 int evaluateProgram(std::vector<int>& instructions) {

@@ -1,16 +1,15 @@
 #ifndef _COMMON_VEC2
 #define _COMMON_VEC2
 #include <cmath>
+#include <cstddef>
 #include <string>
 #include <utility>
-#include <cstddef>
 
-template <typename T, typename V = std::nullptr_t>
+template <typename T>
 class Vector2 {
  private:
   T x = 0;
   T y = 0;
-  V v;
 
  public:
   Vector2() {}
@@ -18,24 +17,19 @@ class Vector2 {
     x = _x;
     y = _y;
   }
-  Vector2(T _x, T _y, V _v) {
-    x = _x;
-    y = _y;
-    v = _v;
-  }
-
 
   T getX() const { return x; }
   T getY() const { return y; }
-  V getV() const { return v; }
 
   T distance() const { return std::abs(x) + std::abs(y); }
 
-  bool operator==(const Vector2<T, V>& other) const {
+  bool operator==(const Vector2<T>& other) const {
     return x == other.x && y == other.y;
   }
 
-  bool operator!=(const Vector2<T, V>& other) const { return !(*this == other); }
+  bool operator!=(const Vector2<T>& other) const {
+    return !(*this == other);
+  }
 
   bool operator<(const Vector2<T>& other) const {
     return x == other.x ? y < other.y : x < other.x;
@@ -57,6 +51,31 @@ class Vector2 {
 
   std::string to_string() const {
     return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+  }
+};
+
+template <typename T, typename V = std::nullptr_t>
+class Vector2WithPayload : public Vector2<T> {
+ private:
+  V v;
+
+ public:
+  Vector2WithPayload() : Vector2<T>() {
+    v = nullptr;
+  }
+
+  Vector2WithPayload(T _x, T _y, V _v): Vector2<T>(_x, _y) {
+    v = _v;
+  }
+
+  V getV() const { return v; }
+
+  bool operator==(const Vector2WithPayload<T, V>& other) const {
+    return this->getX() == other.getX() && this->getY() == other.getY();
+  }
+
+  bool operator!=(const Vector2WithPayload<T, V>& other) const {
+    return !(*this == other);
   }
 };
 

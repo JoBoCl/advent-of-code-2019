@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <cassert>
+#include <sstream>
 
 class Parser {
  private:
@@ -33,6 +35,33 @@ class Parser {
 
     return v;
   }
+
+  template <typename T>
+  std::vector<std::vector<T>> parseRepeatedLines(
+       std::function<std::optional<T>(std::string)> converter, char separator = ',') {
+    std::vector<std::vector<T>> v;
+
+    std::ifstream file(fileName);
+
+    assert(file.is_open());
+
+    std::string value;
+    while (std::getline(file, value)) {
+      std::vector<T> ts;
+      std::stringstream ss (value);
+      std::string entry;
+      while (std::getline(ss, entry, separator)) {
+        std::optional<T> t = converter(entry);
+        if (t) {
+          ts.push_back(*t);
+        }
+      }
+      v.push_back(ts);
+    }
+
+    return v;
+  }
+
 
   template <typename V>
   std::optional<V> parseOnce(
