@@ -14,14 +14,13 @@ bool ascending(const std::vector<char>& digits) {
   return true;
 }
 
-std::set<char> pairMatching(const std::vector<char>& digits) {
-  std::set<char> s;
+bool pairMatching(const std::vector<char>& digits) {
   for (int i = 0; i < digits.size() - 1; i++) {
     if (digits[i] == digits[i + 1]) {
-      s.insert(digits[i]);
+      return true;
     }
   }
-  return s;
+  return false;
 }
 
 bool notInLargestGroup(const std::vector<char>& digits) {
@@ -86,7 +85,7 @@ int main(int argc, char** argv) {
   std::vector<int> results;
   for (int i = lower; i <= upper; i++) {
     std::vector<char> digits = extractDigits(i);
-    if (ascending(digits) && !pairMatching(digits).empty()) {
+    if (ascending(digits) && pairMatching(digits)) {
       results.push_back(i);
     }
   }
