@@ -1,9 +1,6 @@
-#include <cassert>
 #include <iostream>
 #include <map>
-#include <set>
 #include <vector>
-#include "../common/parser.h"
 
 bool ascending(const std::vector<char>& digits) {
   for (int i = 0; i < digits.size() - 1; i++) {
@@ -78,7 +75,6 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  assert(argc == 3);
   int lower = std::stoi(argv[1]);
   int upper = std::stoi(argv[2]);
 
