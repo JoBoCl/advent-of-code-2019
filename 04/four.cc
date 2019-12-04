@@ -1,8 +1,9 @@
 #include <iostream>
 #include <map>
+#include <array>
 #include <vector>
 
-bool ascending(const std::vector<char>& digits) {
+bool ascending(const std::array<char, 6>& digits) {
   for (int i = 0; i < digits.size() - 1; i++) {
     if (digits[i] > digits[i + 1]) {
       return false;
@@ -11,7 +12,7 @@ bool ascending(const std::vector<char>& digits) {
   return true;
 }
 
-bool pairMatching(const std::vector<char>& digits) {
+bool pairMatching(const std::array<char, 6>& digits) {
   for (int i = 0; i < digits.size() - 1; i++) {
     if (digits[i] == digits[i + 1]) {
       return true;
@@ -20,7 +21,7 @@ bool pairMatching(const std::vector<char>& digits) {
   return false;
 }
 
-bool notInLargestGroup(const std::vector<char>& digits) {
+bool notInLargestGroup(const std::array<char, 6>& digits) {
   std::map<char, char> counts;
   for (char c : digits) {
     counts[c]++;
@@ -60,13 +61,13 @@ bool notInLargestGroup(const std::vector<char>& digits) {
   return false;
 }
 
-std::vector<char> extractDigits(int i) {
-  std::vector<char> digits;
-  while (i > 0) {
-    digits.insert(digits.begin(), i % 10);
-    i /= 10;
+std::array<char, 6> extractDigits(int i) {
+  std::string is = std::to_string(i);
+  std::array<char, 6> arr;
+  for (int i = 0; i < 6; i++) {
+    arr[i] = is[i];
   }
-  return digits;
+  return arr;
 }
 
 int main(int argc, char** argv) {
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
 
   std::vector<int> results;
   for (int i = lower; i <= upper; i++) {
-    std::vector<char> digits = extractDigits(i);
+    std::array<char, 6> digits = extractDigits(i);
     if (ascending(digits) && pairMatching(digits)) {
       results.push_back(i);
     }
@@ -90,7 +91,7 @@ int main(int argc, char** argv) {
   int stillMatches = 0;
 
   for (int& r : results) {
-    std::vector<char> digits = extractDigits(r);
+    std::array<char, 6> digits = extractDigits(r);
     if (notInLargestGroup(digits)) {
       stillMatches++;
     }
