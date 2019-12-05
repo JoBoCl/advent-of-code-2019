@@ -157,6 +157,24 @@ int main(int argc, char** argv) {
   std::vector<int> program = p.parseInts();
   std::vector<int> outputs;
   IntCode i(program);
+  // BENCHMARK MODE
+  if (argc == 3) {
+    int input = std::stoi(argv[2]);
+    while (!i.stopped()) {
+      auto v = i.exec();
+      if (v) outputs.push_back(*v);
+      if (i.waiting()) i.input(input);
+      i.advance();
+    }
+
+    if (outputs.empty()) {
+      std::cout << "No outputs\n";
+    } else {
+      std::cout << "Part One: " << outputs[outputs.size() - 1] << std::endl;
+    }
+
+    return 0;
+  }
 
   while (!i.stopped()) {
     auto v = i.exec();
