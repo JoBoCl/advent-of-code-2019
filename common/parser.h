@@ -1,5 +1,6 @@
 #ifndef _COMMON_PARSER
 #define _COMMON_PARSER
+#include <utility>
 #include <fstream>
 #include <functional>
 #include <iterator>
@@ -117,6 +118,53 @@ class Parser {
       std::optional<V> value = valueConverter(line);
       if (key && value) {
         m[*key] = *value;
+      }
+    }
+
+    return m;
+  }
+
+  template <typename K, typename V>
+  std::map<K, std::vector<V>> parseMapVector(
+      std::function<std::optional<K>(std::string)> keyConverter,
+      std::function<std::optional<V>(std::string)> valueConverter) {
+    std::ifstream file(fileName);
+
+    std::map<K, V> m;
+
+    if (!file.is_open()) {
+      return m;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+      std::optional<K> key = keyConverter(line);
+      std::optional<V> value = valueConverter(line);
+      if (key && value) {
+        m[*key].push_back(*value);
+      }
+    }
+
+    return m;
+  }
+
+  template <typename K, typename V>
+  std::map<K, std::vector<V>> parseMapVector(
+      std::function<std::optional<std::pair<K,V>>(std::string)> converter) {
+    std::ifstream file(fileName);
+
+    std::map<K, std::vector<V>> m;
+
+    if (!file.is_open()) {
+      return m;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+      std::optional<std::pair<K,V>> pair = converter(line);
+      if (pair) {
+        auto [key, value] = *pair;
+        m[key].push_back(value);
       }
     }
 

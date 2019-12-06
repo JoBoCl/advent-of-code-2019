@@ -30,7 +30,13 @@ class IntCode {
   int position = 0;
   bool waitingForInput = false;
 
-  int pow(int n) { return n == 0 ? 1 : 10 * pow(n - 1); }
+  int pow(int n) {
+    int v = 1;
+    while (n-- > 0) {
+      v *= 10;
+    }
+    return v;
+  }
 
   bool reference(int arg) {
     return 0 == ((program[position] / pow(arg + 1)) % 10);
@@ -48,7 +54,7 @@ class IntCode {
 
   int value(int address, bool reference) {
     if (reference) {
-      return value(value(address, false), false);
+      return program[program[address]];
     }
     if (address >= program.size()) {
       return additionalMemory[address];
