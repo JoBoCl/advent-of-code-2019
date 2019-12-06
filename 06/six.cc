@@ -11,12 +11,12 @@
 
 std::map<std::string, std::vector<std::string>> orbits;
 
-int countOrbits(const std::string& node, int depth = 0) {
+long countOrbits(const std::string& node, long depth = 0) {
   auto& currentOrbits = orbits[node];
-  std::vector<int> orbitCounts(orbits[node].size());
+  std::vector<long> orbitCounts(orbits[node].size());
   std::transform(orbits[node].begin(), orbits[node].end(), orbitCounts.begin(),
                  [depth](std::string s) { return countOrbits(s, depth + 1); });
-  return depth + std::accumulate(orbitCounts.begin(), orbitCounts.end(), 0);
+  return depth + std::accumulate(orbitCounts.begin(), orbitCounts.end(), 0L);
 }
 
 std::vector<std::string> find(const std::string& target,
@@ -47,7 +47,7 @@ std::vector<std::string> find(const std::string& target,
   return path;
 }
 
-int transferDesk() {
+long transferDesk() {
   auto santa = find("SAN");
   auto you = find("YOU");
   assert(!santa.empty());
@@ -78,7 +78,7 @@ void print() {
 }
 
 int main(int argc, char** argv) {
-  Parser p(argc == 1 ? "six.aoc" : "test.aoc");
+  Parser p(argc == 1 ? "six.aoc" : argv[1]);
   orbits = p.parseMapVector<std::string, std::string>([](std::string s) {
     auto pos = s.find(")");
     return std::pair(s.substr(0, pos), s.substr(pos + 1));
