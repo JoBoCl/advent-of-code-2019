@@ -37,7 +37,7 @@ std::vector<std::string> find(const std::string& target,
   // Only one path will exist to each target.
   auto it = std::find_if(
       childPaths.begin(), childPaths.end(),
-      [target](std::vector<std::string> path) { return !path.empty(); });
+      [target](const std::vector<std::string>& path) { return !path.empty(); });
   // No path found, return empty.
   if (it == childPaths.end()) {
     return v;
