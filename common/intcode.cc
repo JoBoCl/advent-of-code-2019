@@ -1,6 +1,7 @@
 #include "./intcode.h"
 #include <iostream>
 #include <map>
+#include <cassert>
 #include <vector>
 
 int IntCode::pow(int n) {
@@ -50,6 +51,7 @@ void IntCode::advance() {
     int jump = OPERATION_SIZE[lastOp];
     assert(position + jump < program.size());
     position += jump;
+    shouldAdvance = false;
   }
 }
 

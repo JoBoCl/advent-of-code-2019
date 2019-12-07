@@ -54,9 +54,9 @@ void partTwo(std::vector<int>& ampProg) {
   int max = std::numeric_limits<int>::min();
   std::array<IntCode*, 5> programs;
   for (int i = 0; i < 5; i++) {
-    std::vector<int> ampMem(ampProg);
-    IntCode program(ampMem);
-    programs[i] = &program;
+    std::vector<int>* ampMem = new std::vector<int>(ampProg);
+    IntCode* program = new IntCode(*ampMem);
+    programs[i] = program;
   }
 
   do {
