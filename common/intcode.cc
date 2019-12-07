@@ -1,7 +1,7 @@
 #include "./intcode.h"
+#include <cassert>
 #include <iostream>
 #include <map>
-#include <cassert>
 #include <vector>
 
 int IntCode::pow(int n) {
@@ -27,17 +27,25 @@ Operation IntCode::op() {
 }
 
 int IntCode::argument(int number) {
+  if (debug) {
+    std::cout << " " << program[position + number];
+  }
   return value(position + number, reference(number));
 }
 
 int IntCode::value(int address, bool reference) {
+  int value;
   if (reference) {
-    return program[program[address]];
+    value = program[program[address]];
+  } else if (address >= program.size()) {
+    value = additionalMemory[address];
+  } else {
+    value = program[address];
   }
-  if (address >= program.size()) {
-    return additionalMemory[address];
+  if (debug) {
+    std::cout << "(" << value << ")";
   }
-  return program[address];
+  return value;
 }
 
 void IntCode::store(int address, int value) {
@@ -47,7 +55,10 @@ void IntCode::store(int address, int value) {
   program[address] = value;
 }
 
-IntCode::IntCode(std::vector<int>& _program) : program(_program) {}
+IntCode::IntCode(std::vector<int> _program)
+    : program(_program), debug(false) {}
+IntCode::IntCode(std::vector<int> _program, bool _debug)
+    : program(_program), debug(_debug) {}
 
 void IntCode::advance() {
   if (shouldAdvance) {
@@ -64,6 +75,9 @@ std::optional<int> IntCode::exec() {
   shouldAdvance = true;
   switch (lastOp) {
     case ADD: {
+      if (debug) {
+        std::cout << "ADD ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       int output = value(position + 3, false);
@@ -71,6 +85,9 @@ std::optional<int> IntCode::exec() {
       break;
     }
     case MUL: {
+      if (debug) {
+        std::cout << "MUL ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       int output = value(position + 3, false);
@@ -79,12 +96,25 @@ std::optional<int> IntCode::exec() {
     }
     case SET: {
       waitingForInput = true;
-      break;
+      if (debug) {
+        std::cout << "SET ";
+      }
+      return {};
     }
     case OUT: {
-      return argument(1);
+      if (debug) {
+        std::cout << "OUT ";
+      }
+      int out = argument(1);
+      if (debug) {
+        std::cout << "\n";
+      }
+      return out;
     }
     case JIT: {
+      if (debug) {
+        std::cout << "JIT ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       if (arg1 != 0) {
@@ -95,6 +125,9 @@ std::optional<int> IntCode::exec() {
       break;
     }
     case JIF: {
+      if (debug) {
+        std::cout << "JIF ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       if (arg1 == 0) {
@@ -105,6 +138,9 @@ std::optional<int> IntCode::exec() {
       break;
     }
     case SLT: {
+      if (debug) {
+        std::cout << "SLT ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       int output = value(position + 3, false);
@@ -112,6 +148,9 @@ std::optional<int> IntCode::exec() {
       break;
     }
     case SEQ: {
+      if (debug) {
+        std::cout << "SEQ ";
+      }
       int arg1 = argument(1);
       int arg2 = argument(2);
       int output = value(position + 3, false);
@@ -119,7 +158,13 @@ std::optional<int> IntCode::exec() {
       break;
     }
     case FIN:
+      if (debug) {
+        std::cout << "FIN";
+      }
       break;
+  }
+  if (debug) {
+    std::cout << "\n";
   }
   return {};
 }
@@ -128,6 +173,9 @@ bool IntCode::waiting() { return waitingForInput; }
 
 void IntCode::input(int value) {
   int output = program[position + 1];
+  if (debug) {
+    std::cout << output << " " << value << "\n";
+  }
   program[output] = value;
   waitingForInput = false;
 }

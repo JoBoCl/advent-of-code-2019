@@ -9,7 +9,7 @@
 #include "../common/intcode.h"
 #include "../common/parser.h"
 
-void partOne(std::vector<int>& ampProg) {
+void partOne(const std::vector<int>& ampProg) {
   int phases[] = {0, 1, 2, 3, 4};
   int max = std::numeric_limits<int>::min();
 
@@ -49,22 +49,23 @@ void partOne(std::vector<int>& ampProg) {
   std::cout << "Part One: " << max << std::endl;
 }
 
-void partTwo(std::vector<int>& ampProg) {
+void partTwo(const std::vector<int>& ampProg, bool debug = false) {
   int phases[] = {5, 6, 7, 8, 9};
   int max = std::numeric_limits<int>::min();
-  std::array<IntCode*, 5> programs;
-  for (int i = 0; i < 5; i++) {
-    std::vector<int>* ampMem = new std::vector<int>(ampProg);
-    IntCode* program = new IntCode(*ampMem);
-    programs[i] = program;
-  }
 
   do {
+    std::array<IntCode*, 5> programs;
+    for (int i = 0; i < 5; i++) {
+      IntCode* program = new IntCode(ampProg, debug);
+      programs[i] = program;
+    }
+
     int nextInput = 0;
     std::set<int> phaseSet;
     while (std::all_of(programs.begin(), programs.end(),
                        [](IntCode* p) { return !p->stopped(); })) {
       for (int i = 0; i < 5; i++) {
+        if (debug) std::cout << "===== Program " << i << " =====\n";
         IntCode* currentProgram = programs[i];
         int phaseSetting = phases[i];
         bool output = false;
@@ -78,8 +79,9 @@ void partTwo(std::vector<int>& ampProg) {
             if (phaseSet.find(i) == phaseSet.end()) {
               currentProgram->input(phaseSetting);
               phaseSet.insert(i);
+            } else {
+              currentProgram->input(nextInput);
             }
-            currentProgram->input(nextInput);
           }
           currentProgram->advance();
         }
@@ -88,6 +90,11 @@ void partTwo(std::vector<int>& ampProg) {
     assert(std::all_of(programs.begin(), programs.end(),
                        [](IntCode* program) { return program->stopped(); }));
     max = std::max(max, nextInput);
+
+    for (int i = 0; i < 5; i++) {
+      delete programs[i];
+    }
+
   } while (std::next_permutation(phases, phases + 5));
 
   std::cout << "Part Two: " << max << std::endl;
@@ -95,12 +102,12 @@ void partTwo(std::vector<int>& ampProg) {
 
 int main(int argc, char** argv) {
   Parser p(argc == 1 ? "seven.aoc" : argv[1]);
-  std::vector<int> ampProg = p.parseInts();
-  
+  const std::vector<int> ampProg = p.parseInts();
+
   if (argc != 3) {
     partOne(ampProg);
   }
-  partTwo(ampProg);
+  partTwo(ampProg, argv[2][0] == '1');
 
   return 0;
 }
