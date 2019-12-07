@@ -19,7 +19,10 @@ bool IntCode::reference(int arg) {
 Operation IntCode::op() {
   assert(position < program.size());
   int inst = program[position] % 100;
-  assert((1 <= inst && inst <= 8) || inst == 99);
+  if (!((1 <= inst && inst <= 8) || inst == 99)) {
+    std::cout << "Invalid opcode: " << inst << " at " << position;
+    std::abort();
+  }
   return static_cast<Operation>(inst);
 }
 

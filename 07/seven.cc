@@ -62,10 +62,10 @@ void partTwo(std::vector<int>& ampProg) {
   do {
     int nextInput = 0;
     std::set<int> phaseSet;
-    while (std::any_of(programs.begin(), programs.end(),
+    while (std::all_of(programs.begin(), programs.end(),
                        [](IntCode* p) { return !p->stopped(); })) {
       for (int i = 0; i < 5; i++) {
-        IntCode* currentProgram;
+        IntCode* currentProgram = programs[i];
         int phaseSetting = phases[i];
         bool output = false;
         while (!output || !currentProgram->stopped()) {
