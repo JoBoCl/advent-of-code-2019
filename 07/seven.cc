@@ -5,9 +5,12 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <string_view>
 #include <vector>
 #include "../common/intcode.h"
 #include "../common/parser.h"
+
+using std::literals::operator""sv;
 
 void partOne(const std::vector<int>& ampProg) {
   int phases[] = {0, 1, 2, 3, 4};
@@ -54,24 +57,29 @@ void partTwo(const std::vector<int>& ampProg, bool debug = false) {
   int max = std::numeric_limits<int>::min();
 
   do {
-    std::array<IntCode*, 5> programs;
-    for (int i = 0; i < 5; i++) {
-      IntCode* program = new IntCode(ampProg, debug);
-      programs[i] = program;
-    }
+    std::array programs = {
+        IntCode(ampProg, debug), IntCode(ampProg, debug),
+        IntCode(ampProg, debug), IntCode(ampProg, debug),
+        IntCode(ampProg, debug),
+    };
 
     int nextInput = 0;
     std::set<int> phaseSet;
     while (std::all_of(programs.begin(), programs.end(),
-                       [](IntCode* p) { return !p->stopped(); })) {
+                       [](IntCode& p) { return !p.stopped(); })) {
       for (int i = 0; i < 5; i++) {
         if (debug) std::cout << "===== Program " << i << " =====\n";
-        IntCode* currentProgram = programs[i];
+        IntCode* currentProgram = &programs[i];
         int phaseSetting = phases[i];
         bool output = false;
-        while (!output || !currentProgram->stopped()) {
+        bool input = false;
+        while (!output) {
+          if (currentProgram->stopped()) {
+            break;
+          }
           auto v = currentProgram->exec();
           if (v) {
+            assert(input && !output);
             nextInput = *v;
             output = true;
           }
@@ -81,6 +89,7 @@ void partTwo(const std::vector<int>& ampProg, bool debug = false) {
               phaseSet.insert(i);
             } else {
               currentProgram->input(nextInput);
+              input = true;
             }
           }
           currentProgram->advance();
@@ -88,12 +97,8 @@ void partTwo(const std::vector<int>& ampProg, bool debug = false) {
       }
     }
     assert(std::all_of(programs.begin(), programs.end(),
-                       [](IntCode* program) { return program->stopped(); }));
+                       [](IntCode& program) { return program.stopped(); }));
     max = std::max(max, nextInput);
-
-    for (int i = 0; i < 5; i++) {
-      delete programs[i];
-    }
 
   } while (std::next_permutation(phases, phases + 5));
 
@@ -107,7 +112,7 @@ int main(int argc, char** argv) {
   if (argc != 3) {
     partOne(ampProg);
   }
-  partTwo(ampProg, argv[2][0] == '1');
+  partTwo(ampProg, argc > 2 ? argv[2] == "debug"sv : false);
 
   return 0;
 }

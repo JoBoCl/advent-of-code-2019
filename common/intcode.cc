@@ -61,6 +61,7 @@ IntCode::IntCode(std::vector<int> _program, bool _debug)
     : program(_program), debug(_debug) {}
 
 void IntCode::advance() {
+  assert(!waitingForInput);
   if (shouldAdvance) {
     int jump = OPERATION_SIZE[lastOp];
     assert(position + jump < program.size());
@@ -70,7 +71,6 @@ void IntCode::advance() {
 }
 
 std::optional<int> IntCode::exec() {
-  assert(!waitingForInput);
   lastOp = op();
   shouldAdvance = true;
   switch (lastOp) {
