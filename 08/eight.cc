@@ -10,10 +10,10 @@
 
 using std::literals::operator""sv;
 
-const char MAX_X = 25;
-const char MAX_Y = 6;
+constexpr int MAX_X = 25;
+constexpr int MAX_Y = 6;
 
-int zeroes(std::vector<char>& digits) {
+int zeroes(const std::vector<char>& digits) {
   int length = digits.size();
   int depth = length / (MAX_X * MAX_Y);
   int count = std::numeric_limits<char>::max();
@@ -49,9 +49,9 @@ int zeroes(std::vector<char>& digits) {
   return product;
 }
 
-char pixel(std::vector<char>& digits, char x, char y) {
+char pixel(const std::vector<char>& digits, char x, char y) {
   char depth = digits.size() / (MAX_X * MAX_Y);
-  char value;
+  char value = 2;
   for (char z = depth - 1; z >= 0; z--) {
     auto pixel = digits[z * MAX_X * MAX_Y + y * MAX_X + x] - '0';
     if (pixel != 2) {
@@ -61,7 +61,7 @@ char pixel(std::vector<char>& digits, char x, char y) {
   return value;
 }
 
-void print(std::vector<char>& digits) {
+void print(const std::vector<char>& digits) {
   char length = digits.size();
   char depth = length / (MAX_X * MAX_Y);
   for (char y = 0; y < MAX_Y; y++) {
@@ -77,28 +77,6 @@ void print(std::vector<char>& digits) {
     std::cout << "\n";
   }
 }
-
-// pixels picture(std::vector<char> digits) {
-//   pixels p;
-//   char length = digits.size();
-//   char depth = length / (MAX_X * MAX_Y);
-//   for (char x = 0; x < MAX_X; x++) {
-//     for (char y = 0; y < MAX_Y; y++) {
-//       for (char z = 0; z < depth; z++) {
-//         p[x][y].push_back(digits[z * depth + y * MAX_X + x]);
-//       }
-//     }
-//   }
-//   return p;
-// }
-
-// std::vector<char> pixel(pixels picture, char x, char y) {
-//   assert(x < MAX_X);
-//   assert(y < MAX_Y);
-//   return picture[x][y];
-// }
-
-// std::pair<char, char> fewestZeroes() {}
 
 int main(int argc, char** argv) {
   std::ifstream file(argc == 1 ? "eight.aoc"sv : argv[1]);
