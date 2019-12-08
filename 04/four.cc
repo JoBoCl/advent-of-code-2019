@@ -4,7 +4,7 @@
 #include <vector>
 
 bool ascending(const std::array<char, 6>& digits) {
-  for (int i = 0; i < digits.size() - 1; i++) {
+  for (size_t i = 0; i < digits.size() - 1; i++) {
     if (digits[i] > digits[i + 1]) {
       return false;
     }
@@ -13,7 +13,7 @@ bool ascending(const std::array<char, 6>& digits) {
 }
 
 bool pairMatching(const std::array<char, 6>& digits) {
-  for (int i = 0; i < digits.size() - 1; i++) {
+  for (size_t i = 0; i < digits.size() - 1; i++) {
     if (digits[i] == digits[i + 1]) {
       return true;
     }

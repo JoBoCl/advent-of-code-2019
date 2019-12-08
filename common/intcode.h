@@ -25,7 +25,7 @@ class IntCode {
   std::map<int, int> additionalMemory;
   Operation lastOp = SET;
   bool shouldAdvance = true;
-  int position = 0;
+  unsigned int position = 0;
   bool waitingForInput = false;
   bool debug = false;
 
@@ -33,8 +33,8 @@ class IntCode {
   bool reference(int arg); 
   Operation op(); 
   int argument(int number); 
-  int value(int address, bool reference); 
-  void store(int address, int value);
+  int value(size_t address, bool reference); 
+  void store(size_t address, int value);
 
  public:
   IntCode(std::vector<int> _program);

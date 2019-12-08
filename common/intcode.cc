@@ -33,11 +33,19 @@ int IntCode::argument(int number) {
   return value(position + number, reference(number));
 }
 
-int IntCode::value(int address, bool reference) {
+int IntCode::value(size_t address, bool reference) {
   int value;
+
   if (reference) {
-    value = program[program[address]];
-  } else if (address >= program.size()) {
+    bool inExtendedMemory = address >= program.size();
+    if (inExtendedMemory) {
+      address = additionalMemory[address];
+    } else {
+      address = program[address];
+    }
+  } 
+  
+  if (address >= program.size()) {
     value = additionalMemory[address];
   } else {
     value = program[address];
@@ -48,11 +56,11 @@ int IntCode::value(int address, bool reference) {
   return value;
 }
 
-void IntCode::store(int address, int value) {
-  if (address >= program.size()) {
-    additionalMemory[address] = value;
+void IntCode::store(size_t address, int value) {
+  if (address < program.size()) {
+    program[address] = value;
   }
-  program[address] = value;
+  additionalMemory[address] = value;
 }
 
 IntCode::IntCode(std::vector<int> _program)
@@ -118,7 +126,8 @@ std::optional<int> IntCode::exec() {
       int arg1 = argument(1);
       int arg2 = argument(2);
       if (arg1 != 0) {
-        assert(arg2 < program.size());
+        assert(arg2 > 0);
+        assert((unsigned long) arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }
@@ -131,7 +140,8 @@ std::optional<int> IntCode::exec() {
       int arg1 = argument(1);
       int arg2 = argument(2);
       if (arg1 == 0) {
-        assert(arg2 < program.size());
+        assert(arg2 > 0);
+        assert((unsigned long) arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }
@@ -183,7 +193,7 @@ void IntCode::input(int value) {
 bool IntCode::stopped() { return position > program.size() || lastOp == FIN; }
 
 void IntCode::print() {
-  for (int i = 0; i < program.size(); i++) {
+  for (unsigned long i = 0; i < program.size(); i++) {
     std::cout << (i == position ? "(" : "") << program[i]
               << (i == position ? ")" : "") << ", ";
   }

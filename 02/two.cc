@@ -6,7 +6,7 @@
 #include "../common/parser.h"
 
 bool step(std::vector<int>& instructions,
-                                      int position) {
+                                      size_t position) {
   if (instructions.size() < position) return false;
   int operation = instructions[position];
 

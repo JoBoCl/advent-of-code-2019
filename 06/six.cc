@@ -12,11 +12,10 @@
 std::map<std::string, std::vector<std::string>> orbits;
 
 long countOrbits(const std::string& node, long depth = 0) {
-  auto& currentOrbits = orbits[node];
   std::vector<long> orbitCounts(orbits[node].size());
-  std::transform(orbits[node].begin(), orbits[node].end(), orbitCounts.begin(),
+  return depth + 
+  std::transform_reduce(orbits[node].begin(), orbits[node].end(), 0L, std::plus<>(),
                  [depth](std::string s) { return countOrbits(s, depth + 1); });
-  return depth + std::accumulate(orbitCounts.begin(), orbitCounts.end(), 0L);
 }
 
 std::vector<std::string> find(const std::string& target,

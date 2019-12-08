@@ -62,8 +62,6 @@ char pixel(std::vector<char>& digits, char x, char y) {
 }
 
 void print(std::vector<char>& digits) {
-  char length = digits.size();
-  char depth = length / (MAX_X * MAX_Y);
   for (char y = 0; y < MAX_Y; y++) {
     for (char x = 0; x < MAX_X; x++) {
       char value = pixel(digits, x, y);
@@ -77,28 +75,6 @@ void print(std::vector<char>& digits) {
     std::cout << "\n";
   }
 }
-
-// pixels picture(std::vector<char> digits) {
-//   pixels p;
-//   char length = digits.size();
-//   char depth = length / (MAX_X * MAX_Y);
-//   for (char x = 0; x < MAX_X; x++) {
-//     for (char y = 0; y < MAX_Y; y++) {
-//       for (char z = 0; z < depth; z++) {
-//         p[x][y].push_back(digits[z * depth + y * MAX_X + x]);
-//       }
-//     }
-//   }
-//   return p;
-// }
-
-// std::vector<char> pixel(pixels picture, char x, char y) {
-//   assert(x < MAX_X);
-//   assert(y < MAX_Y);
-//   return picture[x][y];
-// }
-
-// std::pair<char, char> fewestZeroes() {}
 
 int main(int argc, char** argv) {
   std::ifstream file(argc == 1 ? "eight.aoc"sv : argv[1]);
