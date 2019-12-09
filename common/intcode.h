@@ -39,11 +39,11 @@ class IntCode {
   long relativeBase = 0;
 
   int pow(int n); 
-  Mode mode(int arg); 
+  Mode mode(int arg, int total); 
   Operation op(); 
-  long argument(int number); 
-  long value(signed long address, Mode mode); 
-  void store(signed long address, long value);
+  long argument(int number, int total); 
+  long value(unsigned long address, Mode mode); 
+  void store(int address, long value);
 
  public:
   IntCode(std::vector<long> _program);

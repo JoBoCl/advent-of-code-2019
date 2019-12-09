@@ -10,9 +10,9 @@
 
 int main(int argc, char** argv) {
   Parser p(argc == 1 ? "five.aoc" : argv[1]);
-  std::vector<int> program = p.parseInts();
-  std::vector<int> outputs;
-  IntCode i(program);
+  std::vector<long> program = p.parseLongs();
+  std::vector<long> outputs;
+  IntCode i(program, true);
   // BENCHMARK MODE
   if (argc == 3) {
     int input = std::stoi(argv[2]);
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     std::cout << "Part One: " << outputs[outputs.size() - 1] << std::endl;
   }
 
-  program = p.parseInts();
+  program = p.parseLongs();
   outputs.clear();
   IntCode j(program);
 

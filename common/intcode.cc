@@ -1,9 +1,12 @@
 #include "./intcode.h"
 #include <cassert>
 #include <iostream>
-#include <ostream>
 #include <map>
+#include <ostream>
 #include <vector>
+#include <string_view>
+
+using std::literals::operator""sv;
 
 int IntCode::pow(int n) {
   int v = 1;
@@ -13,9 +16,12 @@ int IntCode::pow(int n) {
   return v;
 }
 
-Mode IntCode::mode(int arg) {
-  int value = ((program[position] / pow(arg + 1)) % 10);
+Mode IntCode::mode(int arg, int total) {
+  std::string s = std::to_string(program[position]);
+  auto len = s.length();
+  int value = len < arg + 2 ? 0 : s[len - (arg+2)] - '0';
   assert(0 <= value && value <= 2);
+  assert(arg != total || value != 1);
   return static_cast<Mode>(value);
 }
 
@@ -29,33 +35,36 @@ Operation IntCode::op() {
   return static_cast<Operation>(inst);
 }
 
-long IntCode::argument(int number) {
+long IntCode::argument(int number, int total = 3) {
   if (debug) {
     std::cout << " " << program[position + number];
   }
-  return value(position + number, mode(number));
+  return value(position + number, mode(number, total));
 }
 
-long IntCode::value(signed long address, Mode mode) {
+long IntCode::value(unsigned long address, Mode mode) {
   switch (mode) {
     case ADDRESS: {
-    bool inExtendedMemory = address >= program.size();
-    if (inExtendedMemory) {
-      address = additionalMemory[address];
-    } else {
-      address = program[address];
-    }
-    break;
+      bool inExtendedMemory = address >= program.size();
+      if (inExtendedMemory) {
+        address = additionalMemory[address];
+      } else {
+        address = program[address];
+      }
+      if (debug) std::cout << "@";
+      break;
     }
     // Nothing to do here.
-    case DIRECT: break;
+    case DIRECT:
+      break;
     case RELATIVE:
-    address += relativeBase;
-    break;
-  } 
-  
+      address = relativeBase + program[address];
+      if (debug) std::cout << "$";
+      break;
+  }
+
   long value;
-  assert(address >=0);
+  assert(address >= 0);
   if (address >= program.size()) {
     value = additionalMemory[address];
   } else {
@@ -67,11 +76,16 @@ long IntCode::value(signed long address, Mode mode) {
   return value;
 }
 
-void IntCode::store(signed long address, long value) {
-  if (0 <= address && (size_t) address < program.size()) {
-    program[address] = value;
+void IntCode::store(int argument, long value) {
+  unsigned long address = position + argument;
+  if (debug) {
+    std::cout << " " << address;
   }
-  additionalMemory[address] = value;
+  if (0 <= address && (size_t)address < program.size()) {
+    program[address] = value;
+  } else {
+    additionalMemory[address] = value;
+  }
 }
 
 IntCode::IntCode(std::vector<long> _program)
@@ -97,20 +111,16 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "ADD ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = argument(3);
-      store(output, arg1 + arg2);
+      long value = argument(1, 3) + argument(2, 3);
+      store(3, value);
       break;
     }
     case MUL: {
       if (debug) {
         std::cout << "MUL ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = argument(3);
-      store(output, arg1 * arg2);
+      long value = argument(1, 3) * argument(2, 3);
+      store(3, value);
       break;
     }
     case SET: {
@@ -127,6 +137,7 @@ std::optional<long> IntCode::exec() {
       long out = argument(1);
       if (debug) {
         std::cout << "\n";
+        this->print();
       }
       return out;
     }
@@ -134,11 +145,11 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIT ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
+      long arg1 = argument(1, 2);
+      long arg2 = argument(2, 2);
       if (arg1 != 0) {
         assert(arg2 > 0);
-        assert((unsigned long) arg2 < program.size());
+        assert((unsigned long)arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }
@@ -148,11 +159,11 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIF ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
+      long arg1 = argument(1, 2);
+      long arg2 = argument(2, 2);
       if (arg1 == 0) {
         assert(arg2 >= 0);
-        assert((unsigned long) arg2 < program.size());
+        assert((unsigned long)arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }
@@ -162,27 +173,25 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "SLT ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = argument(3);
-      store(output, arg1 < arg2 ? 1 : 0);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      store(3, arg1 < arg2 ? 1 : 0);
       break;
     }
     case SEQ: {
       if (debug) {
         std::cout << "SEQ ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = argument(3);
-      store(output, arg1 == arg2 ? 1 : 0);
+      long arg1 = argument(1,3);
+      long arg2 = argument(2,3);
+      store(3, arg1 == arg2 ? 1 : 0);
       break;
     }
     case ARA: {
       if (debug) {
         std::cout << "ARA ";
       }
-      relativeBase = argument(1);
+      relativeBase += argument(1);
       break;
     }
     case FIN:
@@ -193,6 +202,7 @@ std::optional<long> IntCode::exec() {
   }
   if (debug) {
     std::cout << std::endl;
+    this->print();
   }
   return {};
 }
@@ -200,11 +210,12 @@ std::optional<long> IntCode::exec() {
 bool IntCode::waiting() { return waitingForInput; }
 
 void IntCode::input(long value) {
-  int output = argument(1);
+  Mode mode = this->mode(1, 1);
+  int output = program[position + 1];
+  store(1, value);
   if (debug) {
     std::cout << output << " " << value << "\n";
   }
-  store(output, value);
   waitingForInput = false;
 }
 
@@ -212,8 +223,28 @@ bool IntCode::stopped() { return position > program.size() || lastOp == FIN; }
 
 void IntCode::print() {
   for (unsigned long i = 0; i < program.size(); i++) {
-    std::cout << (i == position ? "(" : "") << program[i]
-              << (i == position ? ")" : "") << ", ";
+    if (relativeBase == i) {
+      std::cout << "[";
+    }
+    if (position == i) {
+      std::cout << "(";
+    }
+    std::cout << program[i];
+    if (position == i) {
+      std::cout << ")";
+    }
+    if (relativeBase == i) {
+      std::cout << "]";
+    }
+    std::cout << ", ";
   }
   std::cout << std::endl;
+  if (!additionalMemory.empty()) {
+    std::cout << "{";
+    for (const std::pair<long, long>& kv : additionalMemory) {
+      std::cout << (relativeBase == kv.first ? "[" : "") << kv.first << ": "
+                << kv.second << (relativeBase == kv.first ? "]" : "") << ", ";
+    }
+    std::cout << "}" << std::endl;
+  }
 }
