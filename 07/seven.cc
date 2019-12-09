@@ -12,7 +12,7 @@
 
 using std::literals::operator""sv;
 
-void partOne(const std::vector<int>& ampProg) {
+void partOne(const std::vector<long>& ampProg) {
   int phases[] = {0, 1, 2, 3, 4};
   int max = std::numeric_limits<int>::min();
 
@@ -20,7 +20,7 @@ void partOne(const std::vector<int>& ampProg) {
     int nextInput = 0;
     for (int i = 0; i < 5; i++) {
       int phaseSetting = phases[i];
-      std::vector<int> ampMem(ampProg);
+      std::vector<long> ampMem(ampProg);
       IntCode program(ampMem);
       bool output = false;
       bool phase = false;
@@ -52,7 +52,7 @@ void partOne(const std::vector<int>& ampProg) {
   std::cout << "Part One: " << max << std::endl;
 }
 
-void partTwo(const std::vector<int>& ampProg, bool debug = false) {
+void partTwo(const std::vector<long>& ampProg, bool debug = false) {
   int phases[] = {5, 6, 7, 8, 9};
   int max = std::numeric_limits<int>::min();
 
@@ -107,12 +107,12 @@ void partTwo(const std::vector<int>& ampProg, bool debug = false) {
 
 int main(int argc, char** argv) {
   Parser p(argc == 1 ? "seven.aoc" : argv[1]);
-  const std::vector<int> ampProg = p.parseInts();
+  const std::vector<long> ampProg = p.parseLongs();
 
   if (argc != 3) {
     partOne(ampProg);
   }
-  partTwo(ampProg, argc > 2 ? argv[2] == "debug"sv : false);
+  partTwo(ampProg, argc > 2 && argv[2] == "debug"sv);
 
   return 0;
 }

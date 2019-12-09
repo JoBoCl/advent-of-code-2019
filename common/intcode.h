@@ -4,6 +4,12 @@
 #include <vector>
 #include <iostream>
 
+enum Mode {
+  ADDRESS = 0,
+  DIRECT = 1,
+  RELATIVE = 2,
+};
+
 enum Operation {
   ADD = 1,
   MUL = 2,
@@ -13,6 +19,7 @@ enum Operation {
   JIF = 6,
   SLT = 7,
   SEQ = 8,
+  ARA = 9,
   FIN = 99,
 };
 
@@ -20,33 +27,35 @@ class IntCode {
  private:
   std::map<Operation, int> OPERATION_SIZE{{ADD, 4}, {MUL, 4}, {SET, 2},
                                           {OUT, 2}, {FIN, 0}, {JIT, 3},
-                                          {JIF, 3}, {SLT, 4}, {SEQ, 4}};
-  std::vector<int> program;
-  std::map<int, int> additionalMemory;
+                                          {JIF, 3}, {SLT, 4}, {SEQ, 4},
+                                          {ARA, 2}};
+  std::vector<long> program;
+  std::map<size_t, long> additionalMemory;
   Operation lastOp = SET;
   bool shouldAdvance = true;
-  unsigned int position = 0;
+  size_t position = 0;
   bool waitingForInput = false;
   bool debug = false;
+  long relativeBase = 0;
 
   int pow(int n); 
-  bool reference(int arg); 
+  Mode mode(int arg); 
   Operation op(); 
-  int argument(int number); 
-  int value(size_t address, bool reference); 
-  void store(size_t address, int value);
+  long argument(int number); 
+  long value(signed long address, Mode mode); 
+  void store(signed long address, long value);
 
  public:
-  IntCode(std::vector<int> _program);
-  IntCode(std::vector<int> _program, bool debug);
+  IntCode(std::vector<long> _program);
+  IntCode(std::vector<long> _program, bool debug);
 
   void advance();
 
-  std::optional<int> exec();
+  std::optional<long> exec();
 
   bool waiting();
 
-  void input(int value);
+  void input(long value);
 
   bool stopped();
 

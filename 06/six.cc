@@ -13,8 +13,7 @@ std::map<std::string, std::vector<std::string>> orbits;
 
 long countOrbits(const std::string& node, long depth = 0) {
   std::vector<long> orbitCounts(orbits[node].size());
-  return depth + 
-  std::transform_reduce(orbits[node].begin(), orbits[node].end(), 0L, std::plus<>(),
+  return depth + std::transform_reduce(orbits[node].begin(), orbits[node].end(), 0L, std::plus<>(),
                  [depth](std::string s) { return countOrbits(s, depth + 1); });
 }
 

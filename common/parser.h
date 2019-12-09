@@ -18,10 +18,9 @@ class Parser {
  public:
   Parser(std::string file) { fileName = file; }
 
-  std::vector<int> parseInts() { return parseInts(','); }
-
-  std::vector<int> parseInts(char separator) {
-    std::vector<int> v;
+  template <typename T>
+  std::vector<T> parseNumbers(std::function<T(std::string&)> converter, char separator = ',') {
+    std::vector<T> v;
 
     std::ifstream file(fileName);
 
@@ -31,11 +30,19 @@ class Parser {
 
     std::string value;
     while (std::getline(file, value, separator)) {
-      v.push_back(std::stoi(value));
+      v.push_back(converter(value));
     }
 
     return v;
   }
+
+  std::vector<int> parseInts() { return parseNumbers<int>(
+    [](std::string& s) {return std::stoi(s); }
+  ); }
+
+  std::vector<long> parseLongs() { return parseNumbers<long>(
+    [](std::string& s) {return std::stol(s); }
+  ); }
 
   template <typename T>
   std::vector<std::vector<T>> parseRepeatedLines(
