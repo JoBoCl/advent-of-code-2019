@@ -5,6 +5,8 @@
 #include <map>
 #include <vector>
 
+// Comment to trigger build.
+
 int IntCode::pow(int n) {
   int v = 1;
   while (n-- > 0) {
@@ -29,6 +31,16 @@ Operation IntCode::op() {
   return static_cast<Operation>(inst);
 }
 
+long IntCode::reference(int number) {
+  Mode m = mode(number);
+  assert(m != DIRECT);
+  if (m == ADDRESS) {
+    return program[position+number];
+  } else {
+    return relativeBase + program[position+number];
+  }
+}
+
 long IntCode::argument(int number) {
   if (debug) {
     std::cout << " " << program[position + number];
@@ -50,7 +62,8 @@ long IntCode::value(signed long address, Mode mode) {
     // Nothing to do here.
     case DIRECT: break;
     case RELATIVE:
-    address += relativeBase;
+    // address += relativeBase;
+    address = relativeBase + program[address];
     break;
   } 
   
@@ -99,7 +112,7 @@ std::optional<long> IntCode::exec() {
       }
       int arg1 = argument(1);
       int arg2 = argument(2);
-      int output = argument(3);
+      int output = reference(3);
       store(output, arg1 + arg2);
       break;
     }
@@ -109,7 +122,7 @@ std::optional<long> IntCode::exec() {
       }
       int arg1 = argument(1);
       int arg2 = argument(2);
-      int output = argument(3);
+      int output = reference(3);
       store(output, arg1 * arg2);
       break;
     }
@@ -164,7 +177,7 @@ std::optional<long> IntCode::exec() {
       }
       int arg1 = argument(1);
       int arg2 = argument(2);
-      int output = argument(3);
+      int output = reference(3);
       store(output, arg1 < arg2 ? 1 : 0);
       break;
     }
@@ -174,7 +187,7 @@ std::optional<long> IntCode::exec() {
       }
       int arg1 = argument(1);
       int arg2 = argument(2);
-      int output = argument(3);
+      int output = reference(3);
       store(output, arg1 == arg2 ? 1 : 0);
       break;
     }
@@ -182,7 +195,7 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "ARA ";
       }
-      relativeBase = argument(1);
+      relativeBase += argument(1);
       break;
     }
     case FIN:
@@ -193,6 +206,7 @@ std::optional<long> IntCode::exec() {
   }
   if (debug) {
     std::cout << std::endl;
+    this->print();
   }
   return {};
 }
@@ -200,7 +214,7 @@ std::optional<long> IntCode::exec() {
 bool IntCode::waiting() { return waitingForInput; }
 
 void IntCode::input(long value) {
-  int output = argument(1);
+  int output = reference(1);
   if (debug) {
     std::cout << output << " " << value << "\n";
   }

@@ -42,6 +42,7 @@ class IntCode {
   Mode mode(int arg); 
   Operation op(); 
   long argument(int number); 
+  long reference(int number);
   long value(signed long address, Mode mode); 
   void store(signed long address, long value);
 
