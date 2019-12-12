@@ -8,8 +8,8 @@
 template <typename T>
 class Vector2 {
  private:
-  const T x = 0;
-  const T y = 0;
+  T x = 0;
+  T y = 0;
 
  public:
   Vector2() {}

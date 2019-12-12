@@ -1,8 +1,8 @@
 #ifndef __COMMON_INTCODE
 #define __COMMON_INTCODE
+#include <iostream>
 #include <map>
 #include <vector>
-#include <iostream>
 
 enum Mode {
   ADDRESS = 0,
@@ -25,10 +25,9 @@ enum Operation {
 
 class IntCode {
  private:
-  std::map<Operation, int> OPERATION_SIZE{{ADD, 4}, {MUL, 4}, {SET, 2},
-                                          {OUT, 2}, {FIN, 0}, {JIT, 3},
-                                          {JIF, 3}, {SLT, 4}, {SEQ, 4},
-                                          {ARA, 2}};
+  std::map<Operation, int> OPERATION_SIZE{
+      {ADD, 4}, {MUL, 4}, {SET, 2}, {OUT, 2}, {FIN, 0},
+      {JIT, 3}, {JIF, 3}, {SLT, 4}, {SEQ, 4}, {ARA, 2}};
   std::vector<long> program;
   std::map<size_t, long> additionalMemory;
   Operation lastOp = SET;
@@ -38,12 +37,12 @@ class IntCode {
   bool debug = false;
   long relativeBase = 0;
 
-  int pow(int n); 
-  Mode mode(int arg); 
-  Operation op(); 
-  long argument(int number); 
+  int pow(int n);
+  Mode mode(int arg);
+  Operation op();
+  long argument(int number);
   long reference(int number);
-  long value(signed long address, Mode mode); 
+  long value(signed long address, Mode mode);
   void store(signed long address, long value);
 
  public:
