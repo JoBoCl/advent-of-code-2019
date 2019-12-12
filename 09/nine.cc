@@ -12,26 +12,19 @@
 
 using std::literals::operator""sv;
 
-int main (int argc, char** argv) {
-  Parser p (argc == 1 ? "nine.aoc" : argv[1]);
-  auto instr = p.parseLongs();
-
-  int debug = 0;
-  if (argc == 3) {
-    debug = std::stoi(argv[2]);
-  }
-
-  IntCode i (instr, debug > 1);
+void part(int debug, std::vector<long> instr, long input) {
+  IntCode i(instr, debug > 1);
   std::vector<long> outputs;
 
   while (!i.stopped()) {
     auto v = i.exec();
-    if (v) { outputs.push_back(*v);
+    if (v) {
+      outputs.push_back(*v);
       if (debug == 1) {
         std::cout << *v << ", ";
       }
     }
-    if (i.waiting()) i.input(1L);
+    if (i.waiting()) i.input(input);
     i.advance();
   }
 
@@ -39,5 +32,24 @@ int main (int argc, char** argv) {
     std::cout << "\n";
   }
 
-  std::cout << "Part One: " << outputs[0] << std::endl;
+  if (outputs.size() == 1) {
+    std::cout << "Part " << input << ": " << outputs[0] << std::endl;
+  } else {
+    for (const auto& o : outputs) {
+      std::cout << o << ", ";
+    }
+    std::cout << "\n";
+  }
+}
+
+int main(int argc, char** argv) {
+  Parser p(argc == 1 ? "nine.aoc" : argv[1]);
+  auto instr = p.parseLongs();
+
+  int debug = 0;
+  if (argc == 3) {
+    debug = std::stoi(argv[2]);
+  }
+  part(debug, instr, 1L);
+  part(debug, instr, 2L);
 }

@@ -110,9 +110,9 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "ADD ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = reference(3);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
       store(output, arg1 + arg2);
       break;
     }
@@ -120,9 +120,9 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "MUL ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = reference(3);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
       store(output, arg1 * arg2);
       break;
     }
@@ -147,8 +147,8 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIT ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
       if (arg1 != 0) {
         assert(arg2 > 0);
         assert((unsigned long) arg2 < program.size());
@@ -161,8 +161,8 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIF ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
       if (arg1 == 0) {
         assert(arg2 >= 0);
         assert((unsigned long) arg2 < program.size());
@@ -175,9 +175,9 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "SLT ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = reference(3);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
       store(output, arg1 < arg2 ? 1 : 0);
       break;
     }
@@ -185,9 +185,9 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "SEQ ";
       }
-      int arg1 = argument(1);
-      int arg2 = argument(2);
-      int output = reference(3);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
       store(output, arg1 == arg2 ? 1 : 0);
       break;
     }
