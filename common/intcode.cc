@@ -4,6 +4,9 @@
 #include <map>
 #include <ostream>
 #include <vector>
+#include <string_view>
+
+using std::literals::operator""sv;
 
 // Comment to trigger build.
 
@@ -15,9 +18,12 @@ int IntCode::pow(int n) {
   return v;
 }
 
-Mode IntCode::mode(int arg) {
-  int value = ((program[position] / pow(arg + 1)) % 10);
+Mode IntCode::mode(int arg, int total) {
+  std::string s = std::to_string(program[position]);
+  auto len = s.length();
+  int value = len < arg + 2 ? 0 : s[len - (arg+2)] - '0';
   assert(0 <= value && value <= 2);
+  assert(arg != total || value != 1);
   return static_cast<Mode>(value);
 }
 
@@ -45,10 +51,10 @@ long IntCode::argument(int number) {
   if (debug) {
     std::cout << " " << program[position + number];
   }
-  return value(position + number, mode(number));
+  return value(position + number, mode(number, total));
 }
 
-long IntCode::value(signed long address, Mode mode) {
+long IntCode::value(unsigned long address, Mode mode) {
   switch (mode) {
     case ADDRESS: {
       bool inExtendedMemory = address < 0 || (size_t)address >= program.size();
@@ -85,8 +91,9 @@ long IntCode::value(signed long address, Mode mode) {
 void IntCode::store(signed long address, long value) {
   if (0 <= address && (size_t)address < program.size()) {
     program[address] = value;
+  } else {
+    additionalMemory[address] = value;
   }
-  additionalMemory[address] = value;
 }
 
 IntCode::IntCode(std::vector<long> _program)
@@ -144,6 +151,7 @@ std::optional<long> IntCode::exec() {
       long out = argument(1);
       if (debug) {
         std::cout << "\n";
+        this->print();
       }
       return out;
     }
@@ -222,7 +230,6 @@ void IntCode::input(long value) {
   if (debug) {
     std::cout << output << " " << value << "\n";
   }
-  store(output, value);
   waitingForInput = false;
 }
 
@@ -230,8 +237,28 @@ bool IntCode::stopped() { return position > program.size() || lastOp == FIN; }
 
 void IntCode::print() {
   for (unsigned long i = 0; i < program.size(); i++) {
-    std::cout << (i == position ? "(" : "") << program[i]
-              << (i == position ? ")" : "") << ", ";
+    if (relativeBase == i) {
+      std::cout << "[";
+    }
+    if (position == i) {
+      std::cout << "(";
+    }
+    std::cout << program[i];
+    if (position == i) {
+      std::cout << ")";
+    }
+    if (relativeBase == i) {
+      std::cout << "]";
+    }
+    std::cout << ", ";
   }
   std::cout << std::endl;
+  if (!additionalMemory.empty()) {
+    std::cout << "{";
+    for (const std::pair<long, long>& kv : additionalMemory) {
+      std::cout << (relativeBase == kv.first ? "[" : "") << kv.first << ": "
+                << kv.second << (relativeBase == kv.first ? "]" : "") << ", ";
+    }
+    std::cout << "}" << std::endl;
+  }
 }
