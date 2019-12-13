@@ -8,6 +8,8 @@
 
 using std::literals::operator""sv;
 
+// Comment to trigger build.
+
 int IntCode::pow(int n) {
   int v = 1;
   while (n-- > 0) {
@@ -35,7 +37,17 @@ Operation IntCode::op() {
   return static_cast<Operation>(inst);
 }
 
-long IntCode::argument(int number, int total = 3) {
+long IntCode::reference(int number) {
+  Mode m = mode(number);
+  assert(m != DIRECT);
+  if (m == ADDRESS) {
+    return program[position + number];
+  } else {
+    return relativeBase + program[position + number];
+  }
+}
+
+long IntCode::argument(int number) {
   if (debug) {
     std::cout << " " << program[position + number];
   }
@@ -45,27 +57,27 @@ long IntCode::argument(int number, int total = 3) {
 long IntCode::value(unsigned long address, Mode mode) {
   switch (mode) {
     case ADDRESS: {
-      bool inExtendedMemory = address >= program.size();
+      bool inExtendedMemory = address < 0 || (size_t)address >= program.size();
+
       if (inExtendedMemory) {
         address = additionalMemory[address];
       } else {
         address = program[address];
       }
-      if (debug) std::cout << "@";
       break;
     }
     // Nothing to do here.
     case DIRECT:
       break;
     case RELATIVE:
+      // address += relativeBase;
       address = relativeBase + program[address];
-      if (debug) std::cout << "$";
       break;
   }
 
   long value;
   assert(address >= 0);
-  if (address >= program.size()) {
+  if ((size_t)address >= program.size()) {
     value = additionalMemory[address];
   } else {
     value = program[address];
@@ -76,11 +88,7 @@ long IntCode::value(unsigned long address, Mode mode) {
   return value;
 }
 
-void IntCode::store(int argument, long value) {
-  unsigned long address = position + argument;
-  if (debug) {
-    std::cout << " " << address;
-  }
+void IntCode::store(signed long address, long value) {
   if (0 <= address && (size_t)address < program.size()) {
     program[address] = value;
   } else {
@@ -104,6 +112,8 @@ void IntCode::advance() {
 }
 
 std::optional<long> IntCode::exec() {
+  assert(!shouldAdvance);
+  assert(!waitingForInput);
   lastOp = op();
   shouldAdvance = true;
   switch (lastOp) {
@@ -111,16 +121,20 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "ADD ";
       }
-      long value = argument(1, 3) + argument(2, 3);
-      store(3, value);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
+      store(output, arg1 + arg2);
       break;
     }
     case MUL: {
       if (debug) {
         std::cout << "MUL ";
       }
-      long value = argument(1, 3) * argument(2, 3);
-      store(3, value);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
+      store(output, arg1 * arg2);
       break;
     }
     case SET: {
@@ -145,8 +159,8 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIT ";
       }
-      long arg1 = argument(1, 2);
-      long arg2 = argument(2, 2);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
       if (arg1 != 0) {
         assert(arg2 > 0);
         assert((unsigned long)arg2 < program.size());
@@ -159,8 +173,8 @@ std::optional<long> IntCode::exec() {
       if (debug) {
         std::cout << "JIF ";
       }
-      long arg1 = argument(1, 2);
-      long arg2 = argument(2, 2);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
       if (arg1 == 0) {
         assert(arg2 >= 0);
         assert((unsigned long)arg2 < program.size());
@@ -175,16 +189,18 @@ std::optional<long> IntCode::exec() {
       }
       long arg1 = argument(1);
       long arg2 = argument(2);
-      store(3, arg1 < arg2 ? 1 : 0);
+      long output = reference(3);
+      store(output, arg1 < arg2 ? 1 : 0);
       break;
     }
     case SEQ: {
       if (debug) {
         std::cout << "SEQ ";
       }
-      long arg1 = argument(1,3);
-      long arg2 = argument(2,3);
-      store(3, arg1 == arg2 ? 1 : 0);
+      long arg1 = argument(1);
+      long arg2 = argument(2);
+      long output = reference(3);
+      store(output, arg1 == arg2 ? 1 : 0);
       break;
     }
     case ARA: {
@@ -210,9 +226,7 @@ std::optional<long> IntCode::exec() {
 bool IntCode::waiting() { return waitingForInput; }
 
 void IntCode::input(long value) {
-  Mode mode = this->mode(1, 1);
-  int output = program[position + 1];
-  store(1, value);
+  int output = reference(1);
   if (debug) {
     std::cout << output << " " << value << "\n";
   }

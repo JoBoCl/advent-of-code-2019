@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
   Parser p(argc == 1 ? "five.aoc" : argv[1]);
   std::vector<long> program = p.parseLongs();
   std::vector<long> outputs;
-  IntCode i(program, true);
+  IntCode i(program);
   // BENCHMARK MODE
   if (argc == 3) {
     int input = std::stoi(argv[2]);
