@@ -1,8 +1,8 @@
 #include "./intcode.h"
 #include <cassert>
 #include <iostream>
-#include <ostream>
 #include <map>
+#include <ostream>
 #include <vector>
 
 // Comment to trigger build.
@@ -35,9 +35,9 @@ long IntCode::reference(int number) {
   Mode m = mode(number);
   assert(m != DIRECT);
   if (m == ADDRESS) {
-    return program[position+number];
+    return program[position + number];
   } else {
-    return relativeBase + program[position+number];
+    return relativeBase + program[position + number];
   }
 }
 
@@ -51,25 +51,27 @@ long IntCode::argument(int number) {
 long IntCode::value(signed long address, Mode mode) {
   switch (mode) {
     case ADDRESS: {
-    bool inExtendedMemory = address >= program.size();
-    if (inExtendedMemory) {
-      address = additionalMemory[address];
-    } else {
-      address = program[address];
-    }
-    break;
+      bool inExtendedMemory = address < 0 || (size_t)address >= program.size();
+
+      if (inExtendedMemory) {
+        address = additionalMemory[address];
+      } else {
+        address = program[address];
+      }
+      break;
     }
     // Nothing to do here.
-    case DIRECT: break;
+    case DIRECT:
+      break;
     case RELATIVE:
-    // address += relativeBase;
-    address = relativeBase + program[address];
-    break;
-  } 
-  
+      // address += relativeBase;
+      address = relativeBase + program[address];
+      break;
+  }
+
   long value;
-  assert(address >=0);
-  if (address >= program.size()) {
+  assert(address >= 0);
+  if ((size_t)address >= program.size()) {
     value = additionalMemory[address];
   } else {
     value = program[address];
@@ -81,7 +83,7 @@ long IntCode::value(signed long address, Mode mode) {
 }
 
 void IntCode::store(signed long address, long value) {
-  if (0 <= address && (size_t) address < program.size()) {
+  if (0 <= address && (size_t)address < program.size()) {
     program[address] = value;
   }
   additionalMemory[address] = value;
@@ -103,6 +105,8 @@ void IntCode::advance() {
 }
 
 std::optional<long> IntCode::exec() {
+  assert(!shouldAdvance);
+  assert(!waitingForInput);
   lastOp = op();
   shouldAdvance = true;
   switch (lastOp) {
@@ -151,7 +155,7 @@ std::optional<long> IntCode::exec() {
       long arg2 = argument(2);
       if (arg1 != 0) {
         assert(arg2 > 0);
-        assert((unsigned long) arg2 < program.size());
+        assert((unsigned long)arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }
@@ -165,7 +169,7 @@ std::optional<long> IntCode::exec() {
       long arg2 = argument(2);
       if (arg1 == 0) {
         assert(arg2 >= 0);
-        assert((unsigned long) arg2 < program.size());
+        assert((unsigned long)arg2 < program.size());
         position = arg2;
         shouldAdvance = false;
       }

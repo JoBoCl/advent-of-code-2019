@@ -13,7 +13,7 @@ class Vector2 {
 
  public:
   Vector2() {}
-  Vector2(T _x, T _y): x(_x), y(_y) {}
+  Vector2(T _x, T _y) : x(_x), y(_y) {}
 
   T getX() const { return x; }
   T getY() const { return y; }
@@ -24,9 +24,7 @@ class Vector2 {
     return x == other.x && y == other.y;
   }
 
-  bool operator!=(const Vector2<T>& other) const {
-    return !(*this == other);
-  }
+  bool operator!=(const Vector2<T>& other) const { return !(*this == other); }
 
   bool operator<(const Vector2<T>& other) const {
     return x == other.x ? y < other.y : x < other.x;
@@ -58,7 +56,7 @@ class Vector2WithPayload : public Vector2<T> {
 
  public:
   Vector2WithPayload() : Vector2<T>(), v(nullptr) {}
-  Vector2WithPayload(T _x, T _y, V _v): Vector2<T>(_x, _y), v(_v) {}
+  Vector2WithPayload(T _x, T _y, V _v) : Vector2<T>(_x, _y), v(_v) {}
 
   V getV() const { return v; }
 

@@ -31,7 +31,7 @@ class IntCode {
   std::vector<long> program;
   std::map<size_t, long> additionalMemory;
   Operation lastOp = SET;
-  bool shouldAdvance = true;
+  bool shouldAdvance = false;
   size_t position = 0;
   bool waitingForInput = false;
   bool debug = false;
