@@ -30,40 +30,6 @@ Tile tile(long n) {
   return static_cast<Tile>(n);
 }
 
-char character(Tile t) {
-  switch (t) {
-    case EMPTY:
-      return ' ';
-    case WALL:
-      return 'W';
-    case BLOCK:
-      return '#';
-    case PADDLE:
-      return '_';
-    case BALL:
-      return 'O';
-  }
-  return ' ';
-}
-
-void print(const std::map<Vector2<long>, Tile>& board) {
-  std::map<long, std::map<long, char>> output;
-  for (const auto& [k, v] : board) {
-    output[k.getY()][k.getX()] = character(v);
-  }
-
-  for (const auto& [y, m] : output) {
-    for (const auto& [x, c] : m) {
-      std::cout << c;
-    }
-    std::cout << "\n";
-  }
-  std::cout << "(" << output.begin()->first << ", "
-            << output.begin()->second.begin()->first << ")x("
-            << output.rbegin()->first << ", "
-            << output.rbegin()->second.rbegin()->first << ")\n";
-}
-
 Output next(Output current) { return static_cast<Output>((current + 1) % 3); }
 
 long partOne(std::vector<long> instr, bool debug = false) {
@@ -108,8 +74,7 @@ const long RIGHT = 1L;
 
 // Board size 24x42.
 // Paddle is on the second-to-last row.
-long paddleDirection(const Vector2<long>& lastBall, const Vector2<long>& ball,
-                     const Vector2<long> paddle) {
+long paddleDirection(const Vector2<long>& ball, const Vector2<long> paddle) {
   if (ball.getX() == paddle.getX()) {
     return NEUTRAL;
   } else if (ball.getX() < paddle.getX()) {
@@ -160,7 +125,7 @@ long partTwo(std::vector<long> instr, bool debug = false) {
       output = next(output);
     }
     if (i.waiting()) {
-      i.input(paddleDirection(lastBall, ball, paddle));
+      i.input(paddleDirection(ball, paddle));
     }
     i.advance();
   }
@@ -174,7 +139,7 @@ long partTwo(std::vector<long> instr, bool debug = false) {
   return score;
 }
 
-int main(int argc, char** argv) {
+int main() {
   Parser p("thirteen.aoc");
 
   std::cout << "Part One: " << partOne(p.parseLongs()) << "\n";

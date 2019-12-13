@@ -1,6 +1,6 @@
 #include <algorithm>
-#include <iostream>
 #include <array>
+#include <iostream>
 #include <numeric>
 #include <regex>
 #include <string>
@@ -17,6 +17,10 @@ struct Moon {
   Moon() : position(Vector3<int>()), velocity(Vector3<int>()) {}
   Moon(Vector3<int> p) : position(p), velocity(Vector3<int>()) {}
   Moon(Vector3<int> p, Vector3<int> v) : position(p), velocity(v) {}
+
+  bool operator==(const Moon& other) {
+    return position == other.position && velocity == other.velocity;
+  }
 
   std::string to_string() {
     return "pos=" + position.to_string() + ", vel=" + velocity.to_string();
@@ -51,26 +55,20 @@ void step(std::vector<Moon>& moons) {
   }
 }
 
-
-std::pair<int, int> extractState(std::vector<Moon> moons,
-                                 const KeyExtractor& key,
-                                 int moon) {
-  return {key(moons[moon].position), key(moons[moon].velocity)};
-}
+auto extractState(std::vector<Moon> moons, int moon) { return moons[moon]; }
 
 // Returns the number of steps until the start of the loop, and the length of
 // the loop.
-std::pair<int, int> findRepeat(std::vector<Moon> moons,
-                               const KeyExtractor& key, int moon) {
+std::pair<int, int> findRepeat(std::vector<Moon> moons, int moon) {
   // Positions and velocities for the selected axis for the selected moon.
-  std::vector<std::pair<int, int>> states;
-  auto currentState = extractState(moons, key, moon);
+  std::vector<Moon> states;
+  Moon currentState = moons[moon];
   auto it = std::find(states.begin(), states.end(), currentState);
 
   do {
     states.push_back(currentState);
     step(moons);
-    currentState = extractState(moons, key, moon);
+    currentState = moons[moon];
 
     it = std::find(states.begin(), states.end(), currentState);
   } while (it == states.end());
@@ -79,21 +77,12 @@ std::pair<int, int> findRepeat(std::vector<Moon> moons,
 }
 
 void partTwo(std::vector<Moon> moons) {
-  KeyExtractor getX = [](const Vector3<int> v) { return v.getX(); };
-  KeyExtractor getY = [](const Vector3<int> v) { return v.getY(); };
-  KeyExtractor getZ = [](const Vector3<int> v) { return v.getZ(); };
-
-  std::array<KeyExtractor, 3> functions= {getX, getY, getZ};
   std::map<int, std::pair<int, int>> intervals;
 
   for (size_t i = 0; i < moons.size(); i++) {
-    for (size_t j = 0; j < functions.size(); j++) {
-      intervals[i*moons.size()+j] = findRepeat(moons, functions[j], i);
-    }
-  }
-
-  for (const auto& [k,v] : intervals) {
-    std::cout << k/3 << "-" << k % 3 << ": " << v.first << ", " << v.second << "\n";
+    intervals[i] = findRepeat(moons, i);
+    std::cout << i << ": " << intervals[i].first << ", " << intervals[i].second
+              << "\n";
   }
 }
 void partOne(std::vector<Moon> moons, int limit) {
