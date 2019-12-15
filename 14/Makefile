@@ -3,7 +3,7 @@ SOURCE	= fourteen.cc
 HEADER	= 
 OUT	= a.out
 CC	 = clang++
-FLAGS	 = -g3 -c -Wall -Wextra -Wpedantic
+FLAGS	 = -O3 -c -Wall -Wextra -Wpedantic
 LFLAGS	 = 
 
 all: $(OBJS)

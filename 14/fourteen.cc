@@ -92,15 +92,52 @@ long makeChemical(std::vector<Reaction>& reactions,
   return total;
 }
 
+long TRILLION = 1000000000000L;
+
+// Start with a conservative estimate of 2million ore being the upper limit.
+long trillionOre(std::vector<Reaction>& reactions,
+                 std::map<long, long>& estimates, long lowerBound,
+                 long upperBound = -1L) {
+  if (lowerBound == upperBound || lowerBound + 1 == upperBound) {
+    return lowerBound;
+  }
+
+  int guess = 0;
+
+  if (upperBound != -1) {
+    guess = (upperBound + lowerBound) / 2;
+  } else {
+    guess = lowerBound * 2;
+  }
+
+  std::map<std::string, long> store;
+  long ore = makeChemical(reactions, store, "FUEL", guess);
+  estimates[guess] = ore;
+
+  if (ore == TRILLION) {
+    return guess;
+  } else if (ore > TRILLION) {
+    return trillionOre(reactions, estimates, lowerBound, guess);
+  } else {
+    return trillionOre(reactions, estimates, guess, upperBound);
+  }
+}
+
 int main(int argc, char** argv) {
   Parser p(argc == 1 ? "fourteen.aoc" : argv[1]);
   auto reactions = p.parseLines<Reaction>(extractReaction);
   std::map<std::string, long> store;
+  long ore = makeChemical(reactions, store, "FUEL", 1L,
+                          argc == 4 && argv[3] == "debug"sv);
 
-  std::cout << "Part One: "
-            << makeChemical(reactions, store, "FUEL", 1L,
-                            argc == 3 && argv[2] == "debug"sv)
-            << "\n";
+  std::cout << "Part One: " << ore << "\n";
+  store.clear();
+
+  std::map<long, long> estimates;
+  estimates[1] = ore;
+
+  std::cout << "Part 2: " << trillionOre(reactions, estimates, 1L)
+            << '\n';
 
   return 0;
 }
