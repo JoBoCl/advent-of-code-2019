@@ -139,7 +139,8 @@ Vector2<long> sweep(Space space, const long x, const long y) {
       if (space[v.getX()][v.getY()]) {
         space[v.getX()][v.getY()] = false;
         i++;
-        std::cout << i << "th asteroid vapourised at: (" << v.getX() << ", " << v.getY() << ").\n";
+        std::cout << i << "th asteroid vapourised at: (" << v.getX() << ", "
+                  << v.getY() << ").\n";
         break;
       }
     }
